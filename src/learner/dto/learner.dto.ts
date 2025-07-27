@@ -1,5 +1,6 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsString, Length, Matches } from "class-validator";
 import { LearnerGender } from "../gender-enum";
+import { Transform } from "class-transformer";
 export class LearnerDto{
     id : string;
 
@@ -14,9 +15,14 @@ export class LearnerDto{
     })
     email : string;
 
-    @IsNumberString()
-    @Length(11)
-    phone : number;
+    @IsNumberString({}, {
+        message: 'Phone number must contain only numbers'
+    })
+    @Transform(({ value }) => value?.trim())
+    @Length(11, 11, {
+        message: 'Phone number must be exactly 11 digits'
+    })
+    phone : string;
 
     @IsNotEmpty()
     @IsString()

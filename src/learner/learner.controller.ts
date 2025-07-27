@@ -1,9 +1,9 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFile, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Body, UseInterceptors, UploadedFile, UsePipes, ValidationPipe, Param, Get, Patch } from '@nestjs/common';
 import { LearnerService } from './learner.service';
 import { LearnerDto } from './dto/learner.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage, MulterError } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
+import { Learner } from './learner.model';
 
 @Controller('learner')
 export class LearnerController {
@@ -16,7 +16,7 @@ export class LearnerController {
                 cb(null,  true);
             }
             else{
-                cb(new MulterError('LIMIT_UNEXPECTED_FILE'), false);
+                cb(new MulterError('LIMIT_UNEXPECTED_FILE', 'Only images are allowed'), false);
             }
         },
         limits: {fileSize : 2000000},
@@ -28,8 +28,7 @@ export class LearnerController {
         })        
     }))
     @UsePipes(new ValidationPipe())
-    async signUp(@Body() learnerDto : LearnerDto, @UploadedFile() image: Express.Multer.File) : Promise<{message: string , data : LearnerDto}> {
-        learnerDto.id = uuidv4();
+    async signUp(@Body() learnerDto : LearnerDto, @UploadedFile() image: Express.Multer.File) : Promise<{message: string , data : Learner}> {
         if(!image){
             learnerDto.imageUrl = "";
         }
@@ -41,4 +40,23 @@ export class LearnerController {
             data: await this.learnerService.createLearner(learnerDto)
         }
     }
+
+    @Get("/:id")
+    async getDetails(@Param('id') id : string) : Promise<Learner>{
+        return await this.learnerService.getLearnerById(id);
+    }
+
+    @Patch()
+    async updateName(@Body() learnerDto : LearnerDto) : Promise<Learner> {
+        const {id , name} = learnerDto;
+        return await this.learnerService.updateNameById(id, name);
+    }
+
+    @Get()
+    async getAllLearners() : Promise<Learner[]>{
+        return await this.learnerService.getAllLearners();
+    }
+
+
+
 }
