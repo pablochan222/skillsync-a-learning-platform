@@ -26,7 +26,7 @@ export class AuthController {
     @Post('/signup')
         @UseInterceptors(FileInterceptor('image', {
             fileFilter: (req, file, cb)=>{
-                if(file.originalname.match(/^.*\.(jpg|webp|png|jpeg)$/i)){
+                if(/^.*\.(jpg|webp|png|jpeg)$/i.exec(file.originalname)){
                     cb(null,  true);
                 }
                 else{

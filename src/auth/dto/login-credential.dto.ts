@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { RolesEnum } from "../roles.enum";
 
 export class LoginCredentialDto{
     @IsNotEmpty()
@@ -10,5 +11,9 @@ export class LoginCredentialDto{
 
     @IsNotEmpty()
     @IsString()
-    password : string;    
+    password : string;
+
+    @IsEnum(RolesEnum, {message : "Role must be either learner or instructor"})
+    @IsOptional()
+    role?: RolesEnum;    
 }

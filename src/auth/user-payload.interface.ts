@@ -1,12 +1,12 @@
 import { RolesEnum } from "./roles.enum";
-import { LearnerGender } from "../learner/gender-enum";
+import { GenderEnum } from "../common/gender-enum";
 
 export interface UserPayload {
     id: string;
     name: string | null;
     email: string;
     phone: string;
-    gender: LearnerGender | null;
+    gender: GenderEnum | null;
     imageUrl: string | null;
     role : RolesEnum | null;
     is_verified: boolean;

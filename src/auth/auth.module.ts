@@ -5,7 +5,9 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Learner } from 'src/learner/learner.entity';
+import { Instructor } from 'src/instructor/instructor.entity';
 import { LearnerModule } from 'src/learner/learner.module';
+import { InstructorModule } from 'src/instructor/instructor.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
@@ -17,8 +19,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
         expiresIn : 3600,
       }
     }),
-    TypeOrmModule.forFeature([Learner]),
-    LearnerModule
+    TypeOrmModule.forFeature([Learner, Instructor]),
+    LearnerModule,
+    InstructorModule
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy]

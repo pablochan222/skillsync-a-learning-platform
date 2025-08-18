@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsString, Length, Matches } from "class-validator";
-import { LearnerGender } from "../gender-enum";
+import { GenderEnum } from "../../common/gender-enum";
 import { Transform } from "class-transformer";
 export class LearnerUpdateDto{
     @IsOptional()
@@ -39,9 +39,9 @@ export class LearnerUpdateDto{
     })
     password : string;
 
-    @IsEnum(LearnerGender, {message : "Gender Male or female"})
+    @IsEnum(GenderEnum, {message : "Gender Male or female"})
     @IsOptional()
-    gender? : LearnerGender;
+    gender? : GenderEnum;
 
     @IsOptional()
     @IsString()

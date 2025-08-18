@@ -1,18 +1,24 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsString, Length, Matches } from "class-validator";
 import { GenderEnum } from "../../common/gender-enum";
-import { RolesEnum } from "../roles.enum";
 import { Transform } from "class-transformer";
-export class UserDto{
+export class InstructorUpdateDto{
+    @IsOptional()
     id : string;
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsString()
+    @IsOptional()
     name : string;
 
+    @IsOptional()
     @IsNotEmpty()
     @IsEmail()
+    @Matches(/^[\w.%+-]+@aiub\.edu$/, {
+        message: 'Email must be from aiub.edu domain',
+    })
     email : string;
 
+    @IsOptional()
     @IsNumberString({}, {
         message: 'Phone number must contain only numbers'
     })
@@ -25,6 +31,7 @@ export class UserDto{
     })
     phone : string;
 
+    @IsOptional()
     @IsNotEmpty()
     @IsString()
     @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s]).{8,}$/, {
@@ -32,24 +39,11 @@ export class UserDto{
     })
     password : string;
 
-    @IsEnum(RolesEnum, {message : "Role must be either learner or instructor"})
-    @IsNotEmpty()
-    @IsOptional()
-    role?: RolesEnum;
-
+    @IsEnum(GenderEnum, {message : "Gender Male or female"})
     @IsOptional()
     gender? : GenderEnum;
 
     @IsOptional()
     @IsString()
     imageUrl? : string;
-
-    @IsOptional()
-    @IsString()
-    bio?: string;
-
-    @IsOptional()
-    @IsString()
-    specilization?: string;
-
 }

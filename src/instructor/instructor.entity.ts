@@ -1,8 +1,8 @@
 import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { GenderEnum } from "../common/gender-enum";
 
-@Entity('learners')
-export class Learner{
+@Entity('instructors')
+export class Instructor{
 
     @PrimaryGeneratedColumn('uuid')
     id : string;
