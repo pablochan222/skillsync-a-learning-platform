@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsPort, IsString, Length, Matches } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsString, Length, Matches } from "class-validator";
 import { LearnerGender } from "../gender-enum";
 import { Transform } from "class-transformer";
 export class LearnerUpdateDto{

@@ -1,36 +1,11 @@
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { LearnerGender } from "./gender-enum";
-import { v4 as uuidv4 } from  'uuid';
 
 @Entity('learners')
 export class Learner{
 
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn('uuid')
     id : string;
-
-    private generateRandomString(length : number) {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        const charactersLength = characters.length;
-        for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        }
-        return result;
-    }
-
-    @BeforeInsert()
-    async generateId() : Promise<void> {
-        const uuidStr : string = uuidv4();
-        const timenow : number = Date.now();
-        const timeString : string = timenow.toString();
-        const randomString : string = this.generateRandomString(7);
-        const userId : string =  timeString.substring(8,12) + randomString.charAt(2) + '-'
-                                + timeString.charAt(12) + randomString.substring(3,7) + '-'
-                                + uuidStr.substring(18,36);
-        this.id = userId;
-    }
-
-
     
     @Column({type : 'varchar', default: null})
     name : string;
@@ -39,8 +14,8 @@ export class Learner{
     email : string;
 
     
-    @Column({type: 'bigint', unsigned: true, unique: true})
-    phone : BigInt;
+    @Column({unique: true})
+    phone : string;
     
     @Column()
     password : string;
@@ -48,11 +23,26 @@ export class Learner{
     @Column({type: 'enum', enum: LearnerGender, nullable : true, default: null})  
     gender : LearnerGender | null;
     
-    @Column({nullable : true})
+    @Column({nullable : true, default : '/images/avatar.png'})
     imageUrl : string;
         
     @Column({default : false})
-    isActive : boolean;
+    is_verified : boolean;
+    
+    @Column({nullable : true})
+    bio : string;
+    
+    @Column({nullable : true})
+    specilization : string;
+  
+    @Column({nullable: true, type: 'date'})
+    birth_date : Date;
+
+    @Column({nullable : true})
+    otp : string;
+
+    @Column({ type: 'timestamptz' , nullable : true})
+    expires_at : Date;
 
     @CreateDateColumn({
         type: 'timestamptz',
@@ -66,6 +56,12 @@ export class Learner{
     })
     updated_at : Date;
 
+    @BeforeInsert()
+    setExpiry() {
+        const now = new Date();
+        this.expires_at = new Date(now.getTime() + 5 * 60 * 1000);
+    }
+    
 
 
 }

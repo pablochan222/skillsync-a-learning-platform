@@ -1,57 +1,29 @@
-import { Controller, Post, Body, UseInterceptors, UploadedFile, UsePipes, ValidationPipe, Param, Get, Patch, Delete } from '@nestjs/common';
+import { Request, Controller, Body, Param, Get, Patch, Delete, UseGuards, UnauthorizedException, ValidationPipe, UsePipes, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { LearnerService } from './learner.service';
-import { LearnerDto } from './dto/learner.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage, MulterError } from 'multer';
-import { LearnerPayload } from './learner-payload.interface';
+import { UserPayload } from '../auth/user-payload.interface';
 import { LearnerUpdateDto } from './dto/learner-update.dto';
 import { Learner } from './learner.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesEnum } from 'src/auth/roles.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage, MulterError } from 'multer';
 
 @Controller('learner')
 export class LearnerController {
     constructor (private readonly learnerService : LearnerService){}
-
-    @Post('/signup')
-    @UseInterceptors(FileInterceptor('image', {
-        fileFilter: (req, file, cb)=>{
-            if(file.originalname.match(/^.*\.(jpg|webp|png|jpeg)$/i)){
-                cb(null,  true);
-            }
-            else{
-                cb(new MulterError('LIMIT_UNEXPECTED_FILE', 'Only images are allowed'), false);
-            }
-        },
-        limits: {fileSize : 2000000},
-        storage: diskStorage({
-            destination: './uploads',
-            filename: (req, file, cb)=> {
-                cb(null, Date.now()+file.originalname);
-            }
-        })        
-    }))
-    @UsePipes(new ValidationPipe())
-    async signUp(@Body() learnerDto : LearnerDto, @UploadedFile() image: Express.Multer.File) : Promise<{message: string}> {
-        if(!image){
-            learnerDto.imageUrl = "";
-        }
-        else{
-            learnerDto.imageUrl = image.path;
-        }
-        return await this.learnerService.createLearner(learnerDto);
+    
+    @UseGuards(JwtAuthGuard)
+    @Get("/profile")
+    async getDetails(@Request() req) : Promise<UserPayload>{
+        return await this.learnerService.getLearnerById(req.user.id);
     }
 
-    @Get("/:id")
-    async getDetails(@Param('id') id : string) : Promise<LearnerPayload>{
-        return await this.learnerService.getLearnerById(id);
-    }
-
-    @Patch('/:id/phone')
-    async updatePhone(@Param('id') id : string, @Body() learnerUpdateDto : LearnerUpdateDto) : Promise<LearnerPayload> {
+    @UseGuards(JwtAuthGuard)
+    @Patch('/profile/phone')
+    async updatePhone(@Request() req, @Body() learnerUpdateDto : LearnerUpdateDto) : Promise<UserPayload> {
         const {phone} = learnerUpdateDto;
-        console.log(learnerUpdateDto);
         try{
-            const phoneNo : BigInt = BigInt(phone);
-            return await this.learnerService.updatePhoneNumberById(id, phoneNo);
+            return await this.learnerService.updatePhoneNumberById(req.user.id, phone);
         }
         catch(error){
             console.log(error);
@@ -63,37 +35,25 @@ export class LearnerController {
         await this.learnerService.deleteLearnerById(id);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get()
-    async getAllUsers() : Promise<Learner[]>{
-        return await this.learnerService.getAllLearners();
+    async getAllUsers(@Request() req) : Promise<Learner[]>{
+        if(req.user.role === RolesEnum.ADMIN)
+            return await this.learnerService.getAllLearners();
+        else{
+            throw new UnauthorizedException();
+        }
     }
 
-    @Get('/user/null')
-    async getUserNamedNull() : Promise<Learner[]>{
-        return await this.learnerService.getUserNamedNull();
-    }
-
-    
-
-
-
-
-
-/*
-
+    @UseGuards(JwtAuthGuard)
     @UsePipes(new ValidationPipe())
-    @Patch()
-    async updateName(@Body() learnerDto : LearnerDto) : Promise<Learner> {
-        const {id , name} = learnerDto;
-        return await this.learnerService.updateNameById(id, name);
+    @Patch('/profile/name')
+    async updateName(@Body('name') name : string, @Request() req) : Promise<UserPayload> {
+        return await this.learnerService.updateNameById(req.user.id, name);
     }
 
-    @Get()
-    async getAllLearners() : Promise<Learner[]>{
-        return await this.learnerService.getAllLearners();
-    }
-
-    @Post("/updateimage")
+    @UseGuards(JwtAuthGuard)
+    @Patch("/profile/image")
     @UsePipes(new ValidationPipe())
     @UseInterceptors(FileInterceptor('image', {
         fileFilter: (req, file, cb)=>{
@@ -112,10 +72,10 @@ export class LearnerController {
             }
         })        
     }))
-    async updateImage(@Body('id') id : string ,  @UploadedFile() image: Express.Multer.File){
-        return await this.learnerService.updateImageById(id, image.path);
+    async updateImage(@Request() req ,  @UploadedFile() image: Express.Multer.File){
+        return await this.learnerService.updateImageById(req.user.id, image.path);
     }
-*/
+
 
 
 }

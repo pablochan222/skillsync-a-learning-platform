@@ -1,19 +1,15 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsString, Length, Matches } from "class-validator";
-import { LearnerGender } from "../gender-enum";
+import { LearnerGender } from "../../learner/gender-enum";
 import { Transform } from "class-transformer";
-export class LearnerDto{
+export class UserDto{
     id : string;
 
     @IsOptional()
-    @IsNotEmpty()
     @IsString()
     name : string;
 
     @IsNotEmpty()
     @IsEmail()
-    @Matches(/^[\w.%+-]+@aiub\.edu$/, {
-        message: 'Email must be from aiub.edu domain',
-    })
     email : string;
 
     @IsNumberString({}, {
@@ -42,4 +38,13 @@ export class LearnerDto{
     @IsOptional()
     @IsString()
     imageUrl? : string;
+
+    @IsOptional()
+    @IsString()
+    bio?: string;
+
+    @IsOptional()
+    @IsString()
+    specilization?: string;
+
 }
