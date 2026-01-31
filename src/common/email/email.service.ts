@@ -18,6 +18,9 @@ export class EmailService {
   }
 
   async sendOTP(email: string, otp: string, name?: string): Promise<void> {
+    console.log(
+      `Email: ${process.env.EMAIL_USER}\n  ${process.env.EMAIL_SERVER_ADDR}\n  ${process.env.EMAIL_SERVER_PORT}\n
+      `)
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
